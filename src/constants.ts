@@ -31,6 +31,7 @@ export const ROLES = [
   "Student / Recent Graduate",
   "Logistics / Driver",
   "Corporate Admin / Assistant",
+  "Teacher / Education (Transitioning)",
 
   // --- CULINARY (HEART OF HOUSE) ---
   "Executive Chef",
@@ -47,7 +48,9 @@ export const ROLES = [
   "Maitre D'",
   "Head Waiter / Captain",
   "Sommelier",
+  "Food & Beverage Assistant / Associate",
   "Server / Waiter",
+  "Conference & Banqueting Staff",
   "Host / Hostess",
   "Food Runner / Busser",
 
@@ -66,9 +69,20 @@ export const ROLES = [
   "Chief Concierge (Les Clefs d'Or)",
   "Concierge",
   "Receptionist / Front Desk Agent",
+  "Duty Manager",
   "Night Auditor",
   "Porter / Bell Attendant",
   "Doorman / Valet",
+  "Housekeeping Supervisor",
+  "Accommodation Assistant / Housekeeping",
+
+  // --- COMMERCIAL & BACK OFFICE (THE ENGINE) ---
+  "Director of Sales / Marketing",
+  "Sales / Events Manager",
+  "Revenue Manager",
+  "Human Resources / Talent Manager",
+  "Maintenance Manager / Chief Engineer",
+  "Security Officer / Manager",
 
   // --- WELLNESS, CLUB & LEISURE ---
   "Director of Golf / Head Pro",
@@ -95,10 +109,14 @@ export const ROLES = [
 ];
 
 export const SECTORS = [
-  "Luxury Hotels & Resorts",
+  "Luxury Hotels & Resorts (5-Star)",
+  "Hotels & Resorts (4-Star / Premium)",
+  "Boutique / Design Hotels",
   "Private Members' Clubs",
   "Fine Dining Restaurants",
+  "Premium Casual Dining",
   "Premium Bars & Nightlife",
+  "Events, Stadiums & Arenas",
   "QSR & Fast Casual",
   "Cruise Lines",
   "Commercial Airlines",
@@ -108,12 +126,18 @@ export const SECTORS = [
 ];
 
 export const LOCATIONS = [
-  "UK (London / Major City)",
-  "UK (Regional / Countryside)",
+  "Ireland (Dublin)",
+  "Ireland (Regional)",
+  "UK (London)",
+  "UK (Regional)",
+  "UAE (Dubai / Abu Dhabi)",
+  "Middle East (Saudi / Qatar / Other)",
+  "India (Major Cities)",
   "USA (Major City - NYC/LA/Miami)",
   "USA (Regional)",
   "Europe (Western)",
-  "Middle East (Dubai / Saudi / Qatar)",
   "Asia Pacific (Aus / NZ / Singapore)",
-  "Cruise Ship / International Waters"
+  "Cruise Ship / International Waters",
+  "Canada / North America",
+  "Caribbean / Resorts"
 ];
