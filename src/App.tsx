@@ -3,7 +3,6 @@ import { UserInput, ValuationResult, UserState } from './types';
 import { ROLES, SECTORS, LOCATIONS, STATE_OF_MIND } from './constants';
 
 // --- THE BRIDGE TO THE BRAIN ---
-// Importing the secure Edge Function logic
 import { calculateValuation } from './services/careerService'; 
 
 // --- ICONS (Lucide React Standard) ---
@@ -11,15 +10,14 @@ import {
   Briefcase, 
   MapPin, 
   Clock, 
-  DollarSign,
-  ChevronRight,
-  ChevronLeft,
+  DollarSign, 
+  ChevronRight, 
   Sparkles, 
   ArrowRight, 
   CheckCircle, 
   ShieldCheck, 
   Globe 
-} from 'lucide-react';
+} from 'lucide-react'; 
 
 const App: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -55,33 +53,10 @@ const App: React.FC = () => {
     }
   }, [loading]);
 
-  // Utility: Parse salary string to clean number (strips commas, 'k', etc.)
-  const parseSalary = (salary: string): string => {
-    let cleaned = salary.replace(/,/g, '').replace(/\s/g, '').toLowerCase();
-    if (cleaned.endsWith('k')) {
-      const num = parseFloat(cleaned.slice(0, -1));
-      if (!isNaN(num)) {
-        cleaned = String(num * 1000);
-      }
-    }
-    return cleaned;
-  };
-
-  // Validation: Check if experience is valid (non-negative)
-  const isExperienceValid = input.experienceYears >= 0 && !isNaN(input.experienceYears);
-
-  // Validation: Check if salary has a value
-  const isSalaryValid = input.currentSalary.trim().length > 0;
-
   const handleStartAudit = async () => {
     setLoading(true);
     try {
-      // Clean salary before sending to API
-      const cleanedInput = {
-        ...input,
-        currentSalary: parseSalary(input.currentSalary),
-      };
-      const data = await calculateValuation(cleanedInput);
+      const data = await calculateValuation(input);
       setResult(data);
       setStep(4);
     } catch (error) {
@@ -90,11 +65,6 @@ const App: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Back navigation handler
-  const handleBack = () => {
-    if (step > 1) setStep(step - 1);
   };
 
   const renderStep = () => {
@@ -141,17 +111,15 @@ const App: React.FC = () => {
       case 2:
         return (
           <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Back Button */}
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors text-sm"
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
-
-            <div className="text-center space-y-4">
-              <h2 className="text-4xl font-serif italic text-gold">Your Profile</h2>
-              <p className="text-zinc-400">Where are you starting from?</p>
+             <div className="flex justify-between items-center">
+               <button 
+                 onClick={() => setStep(1)}
+                 className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1 text-sm uppercase tracking-widest"
+               >
+                 <ChevronRight className="w-4 h-4 rotate-180" /> Back
+               </button>
+               <h2 className="text-4xl font-serif italic text-gold">Your Profile</h2>
+               <div className="w-12" /> {/* Spacer for centering */}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -204,22 +172,14 @@ const App: React.FC = () => {
                   value={input.experienceYears}
                   min={0}
                   max={50}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    setInput({...input, experienceYears: isNaN(val) ? 0 : Math.max(0, val)});
-                  }}
+                  onChange={(e) => setInput({...input, experienceYears: Math.max(0, parseInt(e.target.value) || 0)})}
                 />
               </div>
             </div>
 
             <button
-              disabled={!isExperienceValid}
               onClick={() => setStep(3)}
-              className={`w-full py-4 font-bold rounded-xl flex items-center justify-center gap-2 group mt-6 transition-all ${
-                !isExperienceValid
-                  ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed opacity-50'
-                  : 'bg-zinc-100 text-black hover:bg-gold'
-              }`}
+              className="w-full py-4 bg-zinc-100 text-black font-bold rounded-xl hover:bg-gold transition-all flex items-center justify-center gap-2 group mt-6"
             >
               Set Coordinates <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -229,13 +189,15 @@ const App: React.FC = () => {
       case 3:
         return (
           <div className="max-w-xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Back Button */}
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors text-sm"
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
+            <div className="flex justify-between items-center">
+               <button 
+                 onClick={() => setStep(2)}
+                 className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1 text-sm uppercase tracking-widest"
+               >
+                 <ChevronRight className="w-4 h-4 rotate-180" /> Back
+               </button>
+               <div className="w-12" /> 
+            </div>
 
             <div className="text-center space-y-4">
               <h2 className="text-4xl font-serif italic text-gold">Market Calibration</h2>
@@ -248,10 +210,14 @@ const App: React.FC = () => {
               </div>
               <input 
                 type="text"
-                placeholder="e.g. 55,000 or 55k"
+                placeholder="e.g. 55,000"
                 className="w-full bg-zinc-900/50 border-2 border-zinc-800 rounded-2xl p-6 pl-12 text-3xl font-bold text-white focus:outline-none focus:border-gold placeholder:text-zinc-700 transition-all"
                 value={input.currentSalary}
-                onChange={(e) => setInput({...input, currentSalary: e.target.value})}
+                onChange={(e) => {
+                  // Allow digits, commas, k, and dots only for typing comfort
+                  const val = e.target.value;
+                  setInput({...input, currentSalary: val});
+                }}
               />
             </div>
 
@@ -263,11 +229,11 @@ const App: React.FC = () => {
             </div>
 
             <button
-              disabled={!isSalaryValid}
+              disabled={!input.currentSalary}
               onClick={handleStartAudit}
               className={`w-full py-5 rounded-2xl font-black text-xl tracking-widest transition-all ${
-                !isSalaryValid 
-                ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed opacity-50' 
+                !input.currentSalary 
+                ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
                 : 'bg-gold-gradient text-black hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
               }`}
             >
@@ -281,14 +247,6 @@ const App: React.FC = () => {
         
         return (
           <div className="max-w-4xl mx-auto space-y-12 pb-24 animate-in zoom-in-95 duration-1000">
-            {/* Back Button - Start Over */}
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors text-sm"
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
-
             {/* Hero Section */}
             <div className="text-center space-y-6">
               <div className="inline-block px-4 py-1 rounded-full border border-gold text-gold text-xs font-bold tracking-[0.2em] uppercase mb-4 animate-pulse">
@@ -383,42 +341,55 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Call to Action - Web & Android Live Links */}
+            {/* Call to Action - NETWORK ACCESS (UPDATED) */}
             <div className="sticky bottom-8 bg-black/80 backdrop-blur-xl border border-gold p-8 rounded-3xl text-center space-y-6 shadow-2xl z-50">
                <h3 className="text-2xl font-serif italic text-white">Access The Network</h3>
                <p className="text-zinc-400 text-sm max-w-lg mx-auto">
                  Your Compass is set. To connect with the mentors and roles on this map, enter the Be Family Ecosystem.
                </p>
                
-               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                 {/* Web App Button (iOS Interim Solution) */}
+               <div className="flex flex-col gap-4 justify-center items-center">
+                 
+                 {/* PRIMARY ACTION: Web App (Frictionless) */}
                  <a 
                    href="https://app.be.ie/" 
                    target="_blank"
                    rel="noopener noreferrer"
-                   className="flex items-center gap-3 bg-white text-black px-8 py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-zinc-200 hover:scale-105 transition-all w-full sm:w-auto justify-center"
+                   className="w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-3 bg-white text-black px-8 py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-zinc-200 hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)]"
                  >
-                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                   </svg>
+                   <Globe className="w-5 h-5 text-black" />
                    Launch Web App
                  </a>
 
-                 {/* Android Button - LIVE */}
-                 <a 
-                   href="https://play.google.com/store/apps/details?id=com.beconnectapp.app" 
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="flex items-center gap-3 bg-transparent border border-zinc-700 text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest hover:border-gold hover:text-gold hover:scale-105 transition-all w-full sm:w-auto justify-center"
-                 >
-                   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.14L6.05,2.66Z" /></svg>
-                   Google Play
-                 </a>
+                 {/* SECONDARY ACTION: App Stores (Row) */}
+                 <div className="flex flex-row gap-4 w-full sm:w-auto justify-center">
+                    {/* Apple Store Button */}
+                    <a 
+                      href="https://apps.apple.com/in/app/be-connect-platform/id6757708396" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-transparent border border-zinc-700 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-xs hover:border-gold hover:text-gold hover:scale-105 transition-all"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16.999 19.999c-.94 1.12-2.03 1.99-3.38 1.99-1.44 0-1.89-.85-3.55-.85-1.63 0-2.12.85-3.45.85-1.36 0-2.55-1.1-3.6-2.6-1.92-2.73-2.15-6.57-.04-9.35.9-1.18 2.45-1.93 3.73-1.93 1.25 0 2.12.83 2.92.83.78 0 1.95-.83 3.32-.83 1.34 0 2.62.88 3.37 1.72-3.08 1.53-2.53 6.05.65 7.18-.68 1.77-1.68 3.58-2.97 5.09l-.02.04h.02zM12.91 6.8c-.59-1.4.29-2.86 1.58-3.43.68 1.54-.34 3.03-1.58 3.43z"/></svg>
+                      App Store
+                    </a>
+
+                    {/* Google Play Button */}
+                    <a 
+                      href="https://play.google.com/store/apps/details?id=com.beconnectapp.app" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-transparent border border-zinc-700 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-xs hover:border-gold hover:text-gold hover:scale-105 transition-all"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.14L6.05,2.66Z" /></svg>
+                      Google Play
+                    </a>
+                 </div>
 
                  {/* Restart Button */}
                  <button 
                   onClick={() => setStep(1)}
-                  className="px-6 py-4 text-zinc-500 hover:text-white transition-colors text-sm font-bold tracking-widest uppercase"
+                  className="px-6 py-2 text-zinc-500 hover:text-white transition-colors text-[10px] font-bold tracking-widest uppercase mt-2"
                  >
                    Reset Compass
                  </button>
