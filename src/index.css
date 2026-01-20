@@ -197,6 +197,32 @@
       transparent 100%
     );
   }
+
+  /* Gold gradient background for CTAs */
+  .bg-gold-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(43 58% 62%) 0%,
+      hsl(43 58% 52%) 50%,
+      hsl(43 58% 42%) 100%
+    );
+  }
+
+  /* Gold pulse animation */
+  .animate-pulse-gold {
+    animation: pulse-gold 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-gold {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 hsl(43 58% 52% / 0.4);
+    }
+    50% {
+      opacity: 0.9;
+      box-shadow: 0 0 0 4px hsl(43 58% 52% / 0);
+    }
+  }
 }
 
 @layer utilities {
