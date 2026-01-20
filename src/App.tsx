@@ -12,13 +12,14 @@ import {
   MapPin, 
   Clock, 
   DollarSign,
-  ChevronRight, 
+  ChevronRight,
+  ChevronLeft,
   Sparkles, 
   ArrowRight, 
   CheckCircle, 
   ShieldCheck, 
   Globe 
-} from 'lucide-react'; 
+} from 'lucide-react';
 
 const App: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -54,10 +55,33 @@ const App: React.FC = () => {
     }
   }, [loading]);
 
+  // Utility: Parse salary string to clean number (strips commas, 'k', etc.)
+  const parseSalary = (salary: string): string => {
+    let cleaned = salary.replace(/,/g, '').replace(/\s/g, '').toLowerCase();
+    if (cleaned.endsWith('k')) {
+      const num = parseFloat(cleaned.slice(0, -1));
+      if (!isNaN(num)) {
+        cleaned = String(num * 1000);
+      }
+    }
+    return cleaned;
+  };
+
+  // Validation: Check if experience is valid (non-negative)
+  const isExperienceValid = input.experienceYears >= 0 && !isNaN(input.experienceYears);
+
+  // Validation: Check if salary has a value
+  const isSalaryValid = input.currentSalary.trim().length > 0;
+
   const handleStartAudit = async () => {
     setLoading(true);
     try {
-      const data = await calculateValuation(input);
+      // Clean salary before sending to API
+      const cleanedInput = {
+        ...input,
+        currentSalary: parseSalary(input.currentSalary),
+      };
+      const data = await calculateValuation(cleanedInput);
       setResult(data);
       setStep(4);
     } catch (error) {
@@ -66,6 +90,11 @@ const App: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Back navigation handler
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
   };
 
   const renderStep = () => {
@@ -112,7 +141,15 @@ const App: React.FC = () => {
       case 2:
         return (
           <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-             <div className="text-center space-y-4">
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors text-sm"
+            >
+              <ChevronLeft className="w-4 h-4" /> Back
+            </button>
+
+            <div className="text-center space-y-4">
               <h2 className="text-4xl font-serif italic text-gold">Your Profile</h2>
               <p className="text-zinc-400">Where are you starting from?</p>
             </div>
@@ -167,14 +204,22 @@ const App: React.FC = () => {
                   value={input.experienceYears}
                   min={0}
                   max={50}
-                  onChange={(e) => setInput({...input, experienceYears: parseInt(e.target.value)})}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setInput({...input, experienceYears: isNaN(val) ? 0 : Math.max(0, val)});
+                  }}
                 />
               </div>
             </div>
 
             <button
+              disabled={!isExperienceValid}
               onClick={() => setStep(3)}
-              className="w-full py-4 bg-zinc-100 text-black font-bold rounded-xl hover:bg-gold transition-all flex items-center justify-center gap-2 group mt-6"
+              className={`w-full py-4 font-bold rounded-xl flex items-center justify-center gap-2 group mt-6 transition-all ${
+                !isExperienceValid
+                  ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed opacity-50'
+                  : 'bg-zinc-100 text-black hover:bg-gold'
+              }`}
             >
               Set Coordinates <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -184,6 +229,14 @@ const App: React.FC = () => {
       case 3:
         return (
           <div className="max-w-xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors text-sm"
+            >
+              <ChevronLeft className="w-4 h-4" /> Back
+            </button>
+
             <div className="text-center space-y-4">
               <h2 className="text-4xl font-serif italic text-gold">Market Calibration</h2>
               <p className="text-zinc-400">What is your current total package (Yearly)?</p>
@@ -195,7 +248,7 @@ const App: React.FC = () => {
               </div>
               <input 
                 type="text"
-                placeholder="e.g. 55,000"
+                placeholder="e.g. 55,000 or 55k"
                 className="w-full bg-zinc-900/50 border-2 border-zinc-800 rounded-2xl p-6 pl-12 text-3xl font-bold text-white focus:outline-none focus:border-gold placeholder:text-zinc-700 transition-all"
                 value={input.currentSalary}
                 onChange={(e) => setInput({...input, currentSalary: e.target.value})}
@@ -210,11 +263,11 @@ const App: React.FC = () => {
             </div>
 
             <button
-              disabled={!input.currentSalary}
+              disabled={!isSalaryValid}
               onClick={handleStartAudit}
               className={`w-full py-5 rounded-2xl font-black text-xl tracking-widest transition-all ${
-                !input.currentSalary 
-                ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
+                !isSalaryValid 
+                ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed opacity-50' 
                 : 'bg-gold-gradient text-black hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
               }`}
             >
@@ -228,6 +281,14 @@ const App: React.FC = () => {
         
         return (
           <div className="max-w-4xl mx-auto space-y-12 pb-24 animate-in zoom-in-95 duration-1000">
+            {/* Back Button - Start Over */}
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors text-sm"
+            >
+              <ChevronLeft className="w-4 h-4" /> Back
+            </button>
+
             {/* Hero Section */}
             <div className="text-center space-y-6">
               <div className="inline-block px-4 py-1 rounded-full border border-gold text-gold text-xs font-bold tracking-[0.2em] uppercase mb-4 animate-pulse">
