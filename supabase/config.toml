@@ -1,0 +1,4 @@
+project_id = "jbumzzmbipbfucoxvggw"
+
+[functions.career-valuation]
+verify_jwt = false
