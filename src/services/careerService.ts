@@ -1,39 +1,34 @@
 // src/services/careerService.ts
 
-import { UserInput, ValuationResult } from "../types";
+import { UserInput, ValuationResult } from '../types';
 
-// --- 1. THE TIER SYSTEM (Validated against Global Reports) ---
-// Tier 1: Operational (Capped)
-// Tier 2: Skilled/Service (Moderate)
-// Tier 3: Management/Specialist (High)
-// Tier 4: Executive/Strategic (Uncapped)
-
+// --- 1. THE TIER SYSTEM ---
 const ROLE_TIERS: Record<string, number> = {
   // TIER 1: OPERATIONAL (Hard Ceiling ~€32k-€35k)
   "Kitchen Porter / Steward": 1,
   "Commis Chef": 1,
   "Food Runner / Busser": 1,
-  Barback: 1,
+  "Barback": 1,
   "Porter / Bell Attendant": 1,
   "Doorman / Valet": 1,
   "Accommodation Assistant / Housekeeping": 1,
-  "Golf Associate / Caddy": 1,
+  "Golf Associate / Caddy": 1, 
   "Locker Room Attendant": 1,
   "Pool & Beach Attendant": 1,
   "Driver / Logistics": 1,
   "Retail Associate / Manager (Transitioning)": 1,
   "Healthcare / Care Assistant (Transitioning)": 1,
   "Student / Recent Graduate": 1,
-  "Shift Manager / Team Leader": 1, // QSR entry leadership
+  "Shift Manager / Team Leader": 1,
 
   // TIER 2: SKILLED / SERVICE (Caps ~€45k-€55k)
   "Demi Chef / Line Cook": 2,
   "Chef de Partie": 2,
   "Pastry Chef": 2,
-  "Server / Waiter": 2,
-  Bartender: 2,
+  "Server / Waiter": 2, 
+  "Bartender": 2,
   "Host / Hostess": 2,
-  Concierge: 2,
+  "Concierge": 2,
   "Receptionist / Front Desk Agent": 2,
   "Spa Therapist": 2,
   "Fitness Instructor / Personal Trainer": 2,
@@ -49,9 +44,9 @@ const ROLE_TIERS: Record<string, number> = {
   "Sous Chef": 3,
   "Head Chef / Chef de Cuisine": 3,
   "Restaurant Manager": 3,
-  "Restaurant General Manager (QSR)": 3, // Can earn $80k+ in US
+  "Restaurant General Manager (QSR)": 3,
   "Maitre D'": 3,
-  Sommelier: 3,
+  "Sommelier": 3,
   "Bar Manager": 3,
   "Head Bartender / Mixologist": 3,
   "VIP Host / Promoter": 3,
@@ -71,9 +66,9 @@ const ROLE_TIERS: Record<string, number> = {
   "Cruise Director": 3,
   "Cabin Service Director (Airline)": 3,
   "Inflight Service Manager": 3,
-  "Private Butler / Valet": 3, // High earning potential in private service
+  "Private Butler / Valet": 3,
 
-  // TIER 4: EXECUTIVE (Uncapped / Equity Potential)
+  // TIER 4: EXECUTIVE (Uncapped)
   "Executive Chef": 4,
   "Beverage Director": 4,
   "Director of Rooms": 4,
@@ -81,47 +76,39 @@ const ROLE_TIERS: Record<string, number> = {
   "Director of Golf / Head Pro": 4,
   "Spa Director": 4,
   "General Manager (Hotel)": 4,
-  "General Manager / COO (Private Club)": 4, // $300k+ potential
+  "General Manager / COO (Private Club)": 4,
   "Hotel Director (Cruise)": 4,
   "Director of Operations": 4,
   "Franchise Owner": 4,
-  "Area Coach / District Manager (Multi-Unit)": 4, // QSR Multi-unit
-  "Estate Manager / House Manager": 4, // UHNW Management
-  "Lifestyle Manager": 4,
+  "Area Coach / District Manager (Multi-Unit)": 4,
+  "Estate Manager / House Manager": 4,
+  "Lifestyle Manager": 4
 };
 
-// --- 2. LOCATION FACTORS (Validated against Global Report) ---
+// --- 2. LOCATION FACTORS ---
 const LOCATION_FACTORS: Record<string, number> = {
   "USA (Major City - NYC/LA/Miami)": 1.45,
   "USA (Regional)": 1.15,
   "UK (London)": 1.1,
-  "Middle East (Saudi - Riyadh/Red Sea)": 1.4, // Premium for Saudi Giga-projects
+  "Middle East (Saudi - Riyadh/Red Sea)": 1.40,
   "Middle East (Qatar / Other)": 1.15,
-  "UAE (Dubai / Abu Dhabi)": 1.15,
-  "Ireland (Dublin)": 1.0,
-  "Ireland (Regional)": 0.8, // Validated drop-off
+  "UAE (Dubai / Abu Dhabi)": 1.15, 
+  "Ireland (Dublin)": 1.0, 
+  "Ireland (Regional)": 0.80,
   "Europe (Western)": 0.95,
   "Canada / North America": 1.05,
   "Asia Pacific (Aus / NZ / Singapore)": 1.05,
   "UK (Regional)": 0.85,
   "Caribbean / Resorts": 0.95,
   "Cruise Ship / International Waters": 1.1,
-  "India (Major Cities)": 0.55,
+  "India (Major Cities)": 0.55
 };
 
 // --- 3. CURRENCY FORMATTERS ---
 const CURRENCY_SYMBOLS: Record<string, string> = {
-  USA: "$",
-  UK: "£",
-  Ireland: "€",
-  Europe: "€",
-  "Middle East": "AED ",
-  India: "₹",
-  Asia: "$",
-  Canada: "$",
-  Caribbean: "$",
-  Cruise: "$",
-  UAE: "AED ",
+  "USA": "$", "UK": "£", "Ireland": "€", "Europe": "€",
+  "Middle East": "AED ", "India": "₹", "Asia": "$", 
+  "Canada": "$", "Caribbean": "$", "Cruise": "$", "UAE": "AED "
 };
 
 const getCurrency = (location: string) => {
@@ -135,35 +122,23 @@ const getCurrency = (location: string) => {
 
 // --- 4. THE LOGIC CORE ---
 export const calculateValuation = async (input: UserInput): Promise<ValuationResult> => {
-  // Simulate API delay (Replacing Supabase call with local logic)
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
 
-  const currentSalary = parseInt(input.currentSalary.replace(/[^0-9]/g, "")) || 30000;
+  const currentSalary = parseInt(input.currentSalary.replace(/[^0-9]/g, '')) || 30000;
   const roleTier = ROLE_TIERS[input.role] || 2;
   const locationFactor = LOCATION_FACTORS[input.location] || 0.9;
   const currency = getCurrency(input.location);
 
-  // BASE BANDS (At Factor 1.0 - Dublin/London Baseline)
+  // BASE BANDS
   let baseMin = 0;
   let baseMax = 0;
 
   switch (roleTier) {
-    case 1: // Operational
-      baseMin = 24000;
-      baseMax = 32000;
-      break;
-    case 2: // Skilled
-      baseMin = 32000;
-      baseMax = 48000;
-      break;
-    case 3: // Management
-      baseMin = 50000;
-      baseMax = 90000;
-      break;
-    case 4: // Executive
-      baseMin = 90000;
-      baseMax = 200000;
-      break;
+    case 1: baseMin = 24000; baseMax = 32000; break;
+    case 2: baseMin = 32000; baseMax = 48000; break;
+    case 3: baseMin = 50000; baseMax = 90000; break;
+    case 4: baseMin = 90000; baseMax = 200000; break;
   }
 
   // Apply Location Adjustments
@@ -173,33 +148,39 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
   // --- GROWTH & CEILING LOGIC ---
   let projectedGrowth = 0;
   let ceilingWarning = "";
-
+  
   if (roleTier === 1) {
-    projectedGrowth = 1.08;
-    ceilingWarning = `Operational roles in ${input.location} typically cap at ${currency}${Math.round(marketMax / 1000)}k. Significant income jumps require a move to Management or a High-Volume US/UAE Market.`;
+    projectedGrowth = 1.08; 
+    ceilingWarning = `Operational roles in ${input.location} typically cap at ${currency}${Math.round(marketMax/1000)}k. Significant income jumps require a move to Management or a High-Volume US/UAE Market.`;
   } else if (roleTier === 2) {
-    projectedGrowth = 1.15;
-    ceilingWarning =
-      "You are approaching the specialist ceiling. Next jump requires team leadership (e.g. Duty Manager).";
+    projectedGrowth = 1.15; 
+    ceilingWarning = "You are approaching the specialist ceiling. Next jump requires team leadership (e.g. Duty Manager).";
   } else {
-    projectedGrowth = 1.3;
+    projectedGrowth = 1.30; 
     ceilingWarning = "High growth potential available through strategic moves (Asset Management, Multi-Unit).";
   }
 
-  // Cap growth if already high earner
+  // --- MARKET POSITION & FUTURE VALUE ---
   let futureValueLow = 0;
   let futureValueHigh = 0;
+  let marketPosition = "Fair Market Value"; // Default
 
   if (currentSalary > marketMax) {
     futureValueLow = Math.round(currentSalary * 1.02);
     futureValueHigh = Math.round(currentSalary * 1.05);
     ceilingWarning = `You are earning above the standard band for ${input.location}. To increase value, consider a Sector Pivot (e.g. Private Clubs) or Relocation.`;
+    marketPosition = "Leading Market Rates";
+  } else if (currentSalary < marketMin) {
+    marketPosition = "Below Market Average";
+    futureValueLow = Math.round(currentSalary * projectedGrowth); 
+    futureValueHigh = Math.round(currentSalary * (projectedGrowth + 0.1));
   } else {
-    futureValueLow = Math.round(currentSalary * projectedGrowth);
+    marketPosition = "Fair Market Value";
+    futureValueLow = Math.round(currentSalary * projectedGrowth); 
     futureValueHigh = Math.round(currentSalary * (projectedGrowth + 0.1));
   }
-
-  // --- BRIDGE ROLES (Context-Aware) ---
+  
+  // --- BRIDGE ROLES ---
   let bridgeRole = "Operations Supervisor";
   let rationale = "Moving from execution to oversight increases value by 30%.";
 
@@ -229,13 +210,14 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
     user_profile: {
       detected_role: input.role,
       detected_location: input.location,
-      market_type: input.sector,
+      market_type: input.sector
     },
     valuation: {
       current_market_value: `${format(valMin)} - ${format(valMax)}`,
-      level_up_jump: `+${Math.round((projectedGrowth - 1) * 100)}%`,
-      north_star_archetype: "The Experience Architect",
+      level_up_jump: `+${Math.round((projectedGrowth - 1) * 100)}%`, 
+      north_star_archetype: "The Experience Architect", 
       salary_ceiling_warning: ceilingWarning,
+      market_position: marketPosition // <--- FIXED: Added missing property
     },
     career_strategy: {
       agent_take: `You are currently leveraging skill in a specific sector. While ${format(currentSalary)} is strong for ${input.experienceYears} years, your 'Career Equity' is tied to physical presence.`,
@@ -246,8 +228,8 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
       path_to_mastery: {
         quest: "Operational Oversight",
         challenge: "Team Leadership",
-        trial: "Commercial Awareness",
-      },
-    },
+        trial: "Commercial Awareness"
+      }
+    }
   };
 };
