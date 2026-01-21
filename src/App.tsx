@@ -376,7 +376,7 @@ const App: React.FC = () => {
 
                     {/* Google Play Button */}
                     <a 
-                      href="https://play.google.com/store/apps/details?id=com.beconnectapp.app" 
+                      href="https://play.google.com/store/apps/details?id=com.beconnectapp.app&pcampaignid=web_share" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-transparent border border-zinc-700 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-xs hover:border-gold hover:text-gold hover:scale-105 transition-all"
