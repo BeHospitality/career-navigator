@@ -1,10 +1,11 @@
 // src/services/careerService.ts
 
+import { supabase } from '@/integrations/supabase/client';
 import { UserInput, ValuationResult } from '../types';
 
 // --- 1. THE TIER SYSTEM ---
 const ROLE_TIERS: Record<string, number> = {
-  // TIER 1: OPERATIONAL (Hard Ceiling ~€32k-€35k)
+  // TIER 1: OPERATIONAL
   "Kitchen Porter / Steward": 1,
   "Commis Chef": 1,
   "Food Runner / Busser": 1,
@@ -12,20 +13,24 @@ const ROLE_TIERS: Record<string, number> = {
   "Porter / Bell Attendant": 1,
   "Doorman / Valet": 1,
   "Accommodation Assistant / Housekeeping": 1,
-  "Golf Associate / Caddy": 1, 
+  "Golf Associate / Caddy": 1,
   "Locker Room Attendant": 1,
   "Pool & Beach Attendant": 1,
-  "Driver / Logistics": 1,
+  "Logistics / Driver": 1,
   "Retail Associate / Manager (Transitioning)": 1,
   "Healthcare / Care Assistant (Transitioning)": 1,
   "Student / Recent Graduate": 1,
   "Shift Manager / Team Leader": 1,
+  "Teacher / Education (Transitioning)": 1,
+  "Food & Beverage Assistant / Associate": 1,
+  "Conference & Banqueting Staff": 1,
 
-  // TIER 2: SKILLED / SERVICE (Caps ~€45k-€55k)
+  // TIER 2: SKILLED / SERVICE
   "Demi Chef / Line Cook": 2,
   "Chef de Partie": 2,
   "Pastry Chef": 2,
-  "Server / Waiter": 2, 
+  "Server / Waiter": 2,
+  "Head Waiter / Captain": 2,
   "Bartender": 2,
   "Host / Hostess": 2,
   "Concierge": 2,
@@ -40,7 +45,7 @@ const ROLE_TIERS: Record<string, number> = {
   "Corporate Admin / Assistant": 2,
   "Golf Operations Supervisor": 2,
 
-  // TIER 3: MANAGEMENT (High Growth ~€60k-€100k)
+  // TIER 3: MANAGEMENT
   "Sous Chef": 3,
   "Head Chef / Chef de Cuisine": 3,
   "Restaurant Manager": 3,
@@ -68,7 +73,7 @@ const ROLE_TIERS: Record<string, number> = {
   "Inflight Service Manager": 3,
   "Private Butler / Valet": 3,
 
-  // TIER 4: EXECUTIVE (Uncapped)
+  // TIER 4: EXECUTIVE
   "Executive Chef": 4,
   "Beverage Director": 4,
   "Director of Rooms": 4,
@@ -82,7 +87,7 @@ const ROLE_TIERS: Record<string, number> = {
   "Franchise Owner": 4,
   "Area Coach / District Manager (Multi-Unit)": 4,
   "Estate Manager / House Manager": 4,
-  "Lifestyle Manager": 4
+  "Lifestyle Manager": 4,
 };
 
 // --- 2. LOCATION FACTORS ---
@@ -90,50 +95,59 @@ const LOCATION_FACTORS: Record<string, number> = {
   "USA (Major City - NYC/LA/Miami)": 1.45,
   "USA (Regional)": 1.15,
   "UK (London)": 1.1,
+  "UK (Regional)": 0.85,
   "Middle East (Saudi - Riyadh/Red Sea)": 1.40,
   "Middle East (Qatar / Other)": 1.15,
-  "UAE (Dubai / Abu Dhabi)": 1.15, 
-  "Ireland (Dublin)": 1.0, 
+  "UAE (Dubai / Abu Dhabi)": 1.15,
+  "Ireland (Dublin)": 1.0,
   "Ireland (Regional)": 0.80,
   "Europe (Western)": 0.95,
   "Canada / North America": 1.05,
   "Asia Pacific (Aus / NZ / Singapore)": 1.05,
-  "UK (Regional)": 0.85,
   "Caribbean / Resorts": 0.95,
   "Cruise Ship / International Waters": 1.1,
-  "India (Major Cities)": 0.55
+  "India (Major Cities)": 0.55,
 };
 
-// --- 3. CURRENCY FORMATTERS ---
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  "USA": "$", "UK": "£", "Ireland": "€", "Europe": "€",
-  "Middle East": "AED ", "India": "₹", "Asia": "$", 
-  "Canada": "$", "Caribbean": "$", "Cruise": "$", "UAE": "AED "
-};
-
-const getCurrency = (location: string) => {
-  if (location.includes("USA") || location.includes("Canada") || location.includes("Caribbean")) return "$";
+// --- 3. CURRENCY LOGIC ---
+const getCurrency = (location: string): string => {
+  if (location.includes("USA") || location.includes("Canada") || location.includes("Caribbean") || location.includes("Cruise")) return "$";
   if (location.includes("UK")) return "£";
   if (location.includes("Ireland") || location.includes("Europe")) return "€";
-  if (location.includes("Middle East") || location.includes("UAE")) return "AED ";
+  if (location.includes("UAE")) return "AED ";
+  if (location.includes("Saudi")) return "SAR ";
+  if (location.includes("Qatar")) return "QAR ";
   if (location.includes("India")) return "₹";
+  if (location.includes("Asia Pacific")) return "$";
   return "€";
 };
 
-// --- 4. THE LOGIC CORE ---
-export const calculateValuation = async (input: UserInput): Promise<ValuationResult> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+// --- 4. AI-POWERED VALUATION (Primary) ---
+const getAIValuation = async (input: UserInput): Promise<ValuationResult> => {
+  const { data, error } = await supabase.functions.invoke('career-valuation', {
+    body: {
+      role: input.role,
+      sector: input.sector,
+      location: input.location,
+      experienceYears: input.experienceYears,
+      currentSalary: input.currentSalary,
+      stateOfMind: input.stateOfMind,
+    },
+  });
 
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+  return data as ValuationResult;
+};
+
+// --- 5. LOCAL FALLBACK ---
+const getLocalValuation = (input: UserInput): ValuationResult => {
   const currentSalary = parseInt(input.currentSalary.replace(/[^0-9]/g, '')) || 30000;
   const roleTier = ROLE_TIERS[input.role] || 2;
   const locationFactor = LOCATION_FACTORS[input.location] || 0.9;
   const currency = getCurrency(input.location);
 
-  // BASE BANDS
-  let baseMin = 0;
-  let baseMax = 0;
-
+  let baseMin = 0, baseMax = 0;
   switch (roleTier) {
     case 1: baseMin = 24000; baseMax = 32000; break;
     case 2: baseMin = 32000; baseMax = 48000; break;
@@ -141,29 +155,25 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
     case 4: baseMin = 90000; baseMax = 200000; break;
   }
 
-  // Apply Location Adjustments
-  let marketMin = Math.round(baseMin * locationFactor);
-  let marketMax = Math.round(baseMax * locationFactor);
+  const marketMin = Math.round(baseMin * locationFactor);
+  const marketMax = Math.round(baseMax * locationFactor);
 
-  // --- GROWTH & CEILING LOGIC ---
   let projectedGrowth = 0;
   let ceilingWarning = "";
-  
+
   if (roleTier === 1) {
-    projectedGrowth = 1.08; 
-    ceilingWarning = `Operational roles in ${input.location} typically cap at ${currency}${Math.round(marketMax/1000)}k. Significant income jumps require a move to Management or a High-Volume US/UAE Market.`;
+    projectedGrowth = 1.08;
+    ceilingWarning = `Operational roles in ${input.location} typically cap at ${currency}${Math.round(marketMax / 1000)}k. Significant income jumps require a move to Management or a High-Volume US/UAE Market.`;
   } else if (roleTier === 2) {
-    projectedGrowth = 1.15; 
+    projectedGrowth = 1.15;
     ceilingWarning = "You are approaching the specialist ceiling. Next jump requires team leadership (e.g. Duty Manager).";
   } else {
-    projectedGrowth = 1.30; 
+    projectedGrowth = 1.30;
     ceilingWarning = "High growth potential available through strategic moves (Asset Management, Multi-Unit).";
   }
 
-  // --- MARKET POSITION & FUTURE VALUE ---
-  let futureValueLow = 0;
-  let futureValueHigh = 0;
-  let marketPosition = "Fair Market Value"; // Default
+  let futureValueLow = 0, futureValueHigh = 0;
+  let marketPosition = "Fair Market Value";
 
   if (currentSalary > marketMax) {
     futureValueLow = Math.round(currentSalary * 1.02);
@@ -172,15 +182,13 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
     marketPosition = "Leading Market Rates";
   } else if (currentSalary < marketMin) {
     marketPosition = "Below Market Average";
-    futureValueLow = Math.round(currentSalary * projectedGrowth); 
+    futureValueLow = Math.round(currentSalary * projectedGrowth);
     futureValueHigh = Math.round(currentSalary * (projectedGrowth + 0.1));
   } else {
-    marketPosition = "Fair Market Value";
-    futureValueLow = Math.round(currentSalary * projectedGrowth); 
+    futureValueLow = Math.round(currentSalary * projectedGrowth);
     futureValueHigh = Math.round(currentSalary * (projectedGrowth + 0.1));
   }
-  
-  // --- BRIDGE ROLES ---
+
   let bridgeRole = "Operations Supervisor";
   let rationale = "Moving from execution to oversight increases value by 30%.";
 
@@ -190,16 +198,28 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
   } else if (input.role.includes("Chef") || input.role.includes("Cook")) {
     bridgeRole = "Sous Chef / Kitchen Manager";
     rationale = "Managing food cost (COGS) and labor is the multiplier for Chef salaries.";
-  } else if (input.role.includes("Waiter") || input.role.includes("Server")) {
+  } else if (input.role.includes("Waiter") || input.role.includes("Server") || input.role.includes("Captain")) {
     bridgeRole = "Restaurant Manager / Maitre D'";
   } else if (input.role.includes("Reception")) {
     bridgeRole = "Front Office Manager / Duty Manager";
-  } else if (input.role.includes("QSR") || input.role.includes("Fast")) {
+  } else if (input.role.includes("QSR") || input.role.includes("Fast") || input.role.includes("Shift Manager")) {
     bridgeRole = "Area Coach / District Manager";
     rationale = "Moving from Single-Unit to Multi-Unit management doubles earning potential.";
   } else if (input.role.includes("Butler") || input.role.includes("Estate")) {
     bridgeRole = "Director of Residences";
     rationale = "Managing the entire estate portfolio rather than just service delivery.";
+  } else if (input.role.includes("Teacher") || input.role.includes("Education")) {
+    bridgeRole = "Guest Relations Manager / Training Manager";
+    rationale = "Your teaching skills translate directly to L&D and guest experience roles.";
+  } else if (input.role.includes("Retail")) {
+    bridgeRole = "Front Office Supervisor";
+    rationale = "Retail management skills map directly to hotel front office operations.";
+  } else if (input.role.includes("Healthcare") || input.role.includes("Care")) {
+    bridgeRole = "Guest Relations / Concierge";
+    rationale = "Your empathy and care skills are highly valued in luxury guest services.";
+  } else if (input.role.includes("Conference") || input.role.includes("Banqueting")) {
+    bridgeRole = "Events Manager / Sales Coordinator";
+    rationale = "Conference operations experience is the gateway to high-value event sales.";
   }
 
   const format = (num: number) => `${currency}${Math.round(num).toLocaleString()}`;
@@ -210,14 +230,14 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
     user_profile: {
       detected_role: input.role,
       detected_location: input.location,
-      market_type: input.sector
+      market_type: input.sector,
     },
     valuation: {
       current_market_value: `${format(valMin)} - ${format(valMax)}`,
-      level_up_jump: `+${Math.round((projectedGrowth - 1) * 100)}%`, 
-      north_star_archetype: "The Experience Architect", 
+      level_up_jump: `+${Math.round((projectedGrowth - 1) * 100)}%`,
+      north_star_archetype: "The Experience Architect",
       salary_ceiling_warning: ceilingWarning,
-      market_position: marketPosition // <--- FIXED: Added missing property
+      market_position: marketPosition,
     },
     career_strategy: {
       agent_take: `You are currently leveraging skill in a specific sector. While ${format(currentSalary)} is strong for ${input.experienceYears} years, your 'Career Equity' is tied to physical presence.`,
@@ -228,8 +248,21 @@ export const calculateValuation = async (input: UserInput): Promise<ValuationRes
       path_to_mastery: {
         quest: "Operational Oversight",
         challenge: "Team Leadership",
-        trial: "Commercial Awareness"
-      }
-    }
+        trial: "Commercial Awareness",
+      },
+    },
   };
+};
+
+// --- 6. PUBLIC API: Try AI first, fallback to local ---
+export const calculateValuation = async (input: UserInput): Promise<ValuationResult> => {
+  try {
+    console.log("Attempting AI-powered valuation...");
+    const result = await getAIValuation(input);
+    console.log("AI valuation successful");
+    return result;
+  } catch (error) {
+    console.warn("AI valuation failed, using local fallback:", error);
+    return getLocalValuation(input);
+  }
 };
