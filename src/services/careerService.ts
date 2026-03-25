@@ -235,7 +235,7 @@ const getLocalValuation = (input: UserInput): ValuationResult => {
     valuation: {
       current_market_value: `${format(valMin)} - ${format(valMax)}`,
       level_up_jump: `+${Math.round((projectedGrowth - 1) * 100)}%`,
-      north_star_archetype: "The Experience Architect",
+      north_star_archetype: "Experience Architect",
       salary_ceiling_warning: ceilingWarning,
       market_position: marketPosition,
     },

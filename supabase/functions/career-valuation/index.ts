@@ -48,7 +48,7 @@ Return ONLY raw JSON. No markdown formatting.
     "current_market_value": "String (e.g. '$55,000')", 
     "market_position": "String (e.g. 'Top 15%')", 
     "salary_ceiling_warning": "String", 
-    "north_star_archetype": "String (e.g. 'The Diplomat')" 
+    "north_star_archetype": "String — the archetype name WITHOUT 'The' prefix (e.g. 'Diplomat', 'Strategist', 'Experience Architect')" 
   },
   "career_strategy": { 
     "agent_take": "String", 
