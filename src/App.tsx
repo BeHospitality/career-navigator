@@ -209,7 +209,7 @@ const App: React.FC = () => {
                 Path Revealed • 2026 Strategy
               </div>
               <h2 className="text-4xl md:text-6xl font-serif italic text-white leading-tight">
-                <span className="text-gold">{result.valuation.north_star_archetype.replace(/^The\s+/i, 'The ')}</span>
+                <span className="text-gold">The {result.valuation.north_star_archetype.replace(/^The\s+/i, '')}</span>
               </h2>
               <p className="text-base md:text-xl text-zinc-400 max-w-2xl mx-auto italic font-light px-4">
                 "{result.career_strategy.agent_take}"
