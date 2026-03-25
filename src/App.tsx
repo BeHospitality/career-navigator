@@ -183,7 +183,7 @@ const App: React.FC = () => {
             <div className="bg-zinc-900/50 border border-zinc-800 p-4 md:p-6 rounded-xl space-y-4">
               <div className="flex items-start gap-3">
                 <ShieldCheck className="w-6 h-6 text-gold shrink-0 mt-1" />
-                <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">We analyze live global market data to calculate your "Career Equity"—the projected value of your skills over the next 3 years.</p>
+                <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">We use AI-powered career intelligence to calculate your "Career Equity"—the projected value of your skills over the next 3 years.</p>
               </div>
             </div>
 
@@ -209,7 +209,7 @@ const App: React.FC = () => {
                 Path Revealed • 2026 Strategy
               </div>
               <h2 className="text-4xl md:text-6xl font-serif italic text-white leading-tight">
-                The <span className="text-gold">{result.valuation.north_star_archetype}</span>
+                <span className="text-gold">{result.valuation.north_star_archetype.replace(/^The\s+/i, 'The ')}</span>
               </h2>
               <p className="text-base md:text-xl text-zinc-400 max-w-2xl mx-auto italic font-light px-4">
                 "{result.career_strategy.agent_take}"
