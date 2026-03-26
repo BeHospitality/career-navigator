@@ -361,9 +361,17 @@ const App: React.FC = () => {
         ) : renderStep()}
       </main>
 
-      {/* Footer Branding */}
-      <footer className="p-8 md:p-12 text-center text-[10px] text-zinc-700 uppercase tracking-[0.5em] font-medium border-t border-zinc-900">
-        © 2026 Be Family Career Intelligence
+      {/* Footer */}
+      <footer className="py-6 text-center">
+        <a
+          href="https://be.ie/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-[#6B7280] hover:underline"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          Privacy Notice
+        </a>
       </footer>
     </div>
   );
