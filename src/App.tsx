@@ -285,7 +285,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Call to Action - MOBILE OPTIMIZED (No Sticky Covering) */}
-            <div className="relative md:sticky md:bottom-8 bg-black/90 backdrop-blur-xl border border-gold p-6 md:p-8 rounded-3xl text-center space-y-4 md:space-y-6 shadow-2xl z-50">
+            <div className="bg-black/90 backdrop-blur-xl border border-gold p-6 md:p-8 rounded-3xl text-center space-y-4 md:space-y-6 shadow-2xl mt-8 md:mt-12">
                <h3 className="text-xl md:text-2xl font-serif italic text-white">Access The Network</h3>
                <p className="text-zinc-400 text-xs md:text-sm max-w-lg mx-auto">
                  Your Compass is set. To connect with the mentors and roles on this map, enter the Be Family Ecosystem.
