@@ -336,9 +336,6 @@ const App: React.FC = () => {
           <div className="w-8 h-8 md:w-10 md:h-10 bg-gold flex items-center justify-center font-black text-black text-lg md:text-xl rounded-md italic">Be</div>
           <h1 className="text-xs md:text-sm font-bold uppercase tracking-[0.3em] hidden sm:block text-zinc-300">Career Compass</h1>
         </div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 bg-zinc-900/50 px-3 py-1 rounded-full border border-zinc-800">
-          Intelligence v3.3 Mobile
-        </div>
       </header>
 
       {/* Main Content */}
