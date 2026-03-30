@@ -205,14 +205,11 @@ const App: React.FC = () => {
           <div className="max-w-4xl mx-auto space-y-8 md:space-y-12 pb-24 animate-in zoom-in-95 duration-1000">
             {/* Hero Section */}
             <div className="text-center space-y-4 md:space-y-6">
-              <div className="inline-block px-4 py-1 rounded-full border border-gold text-gold text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase mb-2 animate-pulse">
-                Path Revealed • 2026 Strategy
-              </div>
               <h2 className="text-4xl md:text-6xl font-serif italic text-white leading-tight">
-                <span className="text-gold">The {result.valuation.north_star_archetype.replace(/^The\s+/i, '')}</span>
+                <span className="text-gold">Your Career Direction</span>
               </h2>
               <p className="text-base md:text-xl text-zinc-400 max-w-2xl mx-auto italic font-light px-4">
-                "{result.career_strategy.agent_take}"
+                "{result.career_strategy.agent_take.replace(/^GOLDEN HANDCUFFS DETECTED:\s*/i, '')}"
               </p>
             </div>
 
@@ -222,9 +219,9 @@ const App: React.FC = () => {
                  <div className="absolute top-0 right-0 p-4 opacity-10">
                    <DollarSign className="w-24 h-24 md:w-32 md:h-32" />
                  </div>
-                 <h3 className="text-zinc-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-2">Current Market Value</h3>
-                 {/* Responsive Font for Salary to prevent breaking */}
-                 <div className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">{result.valuation.current_market_value}</div>
+                 <h3 className="text-zinc-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-2">AI-Powered Market Estimate</h3>
+                 <div className="text-3xl md:text-5xl font-black text-white mb-1 leading-tight">{result.valuation.current_market_value}</div>
+                 <p className="text-[11px] italic text-[#6B7280] mb-4">For guidance only — based on your inputs, not verified market data.</p>
                  
                  <div className="flex flex-wrap gap-2 items-center">
                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 rounded-lg text-xs md:text-sm font-bold animate-pulse-gold">
@@ -236,8 +233,8 @@ const App: React.FC = () => {
                  </div>
 
                  <p className="mt-6 text-xs md:text-sm text-zinc-400 leading-relaxed border-l-2 border-zinc-700 pl-4">
-                   {result.valuation.salary_ceiling_warning}
-                 </p>
+                    {result.valuation.salary_ceiling_warning.replace(/^GOLDEN HANDCUFFS DETECTED:\s*/i, '')}
+                  </p>
               </div>
 
               <div className="bg-zinc-900/40 border border-zinc-800 p-6 md:p-8 rounded-3xl space-y-6">
